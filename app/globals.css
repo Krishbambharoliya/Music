@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --color-accent: #c8102e;
+  --color-accent-hover: #b00e28;
+  --color-accent-light: #fca5a5;
+  --color-brass: #e0a13a;
+  --color-cream: #f5e9d6;
+  --color-ink: #16110e;
+}
+
+/* Base custom background styles */
+.hero-bg {
+  background-color: #16110e;
+  background-image: 
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent, rgba(0, 0, 0, 0.8)),
+    url('/bg/scene-wide.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.5s ease-in-out;
+}
+
+@media (orientation: portrait) {
+  .hero-bg {
+    background-image: 
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent, rgba(0, 0, 0, 0.8)),
+      url('/bg/scene-tall.png');
+  }
+}
+
+/* Inline SVG grain noise overlay */
+.grain-overlay {
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  opacity: 0.3;
+}
+
+/* Glass panel styling */
+.glass-panel {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.055));
+  backdrop-filter: blur(40px) saturate(1.7);
+  -webkit-backdrop-filter: blur(40px) saturate(1.7);
+  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Clock colon blink */
+.colon-blink {
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Spinning Vinyl */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vinyl-spin {
+  animation: spin 8s linear infinite;
+}
+
+/* Force YouTube generated iframe to scale, round, and center perfectly as the vinyl cover art */
+#yt-player-iframe {
+  width: 142% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -21% !important;
+  border-radius: 9999px !important;
+  overflow: hidden !important;
+  pointer-events: auto !important;
+}
+
+/* Retro Font Utility */
+.font-retro {
+  font-family: 'Share Tech Mono', 'Courier New', Courier, monospace !important;
+}
+
+/* Devanagari Headings Font */
+.font-devanagari {
+  font-family: 'Rozha One', 'Inter', system-ui, sans-serif !important;
+}
