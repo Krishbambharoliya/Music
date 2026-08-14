@@ -240,6 +240,13 @@ export default function PlayerClient() {
     // Fetch backgrounds from API
     refreshBackgrounds();
 
+    // Service Worker registration for PWA
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      navigator.serviceWorker.register('/sw.js')
+        .then((reg) => console.log('PWA ServiceWorker active with scope:', reg.scope))
+        .catch((err) => console.warn('PWA ServiceWorker registration failed:', err));
+    }
+
     // Orientation checker
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
     checkMobile();
