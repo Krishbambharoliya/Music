@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📻 S.P Hostel Radio — Estd. 1956
 
-## Getting Started
+A nostalgic, installable retro retro player inspired by the vibrant courtyard and corridors of S.P Hostel. Experience the warm, cozy atmosphere of vintage radios playing timeless Indian melodies that echo through tea stalls, street cricket matches, and lazy afternoon corridor chats.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Built with Antigravity AI
+This entire project, including its core architecture, high-fidelity mechanical design layouts, custom audio/background APIs, and installable PWA packaging, was designed, developed, and optimized in pair-programming collaboration with **Antigravity**, an agentic AI coding assistant by Google DeepMind.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Double-Layer Background Cross-Fade**: Buttery-smooth, hardware-accelerated opacity transitions when swapping background scenery (featuring the default *Engineering Building* oil painting asset).
+- **Bakelite Cabinet Customizer**: Choose between 8 premium vintage "old money" themes (Ochre Gold, Racing Green, Navy Blue, Cognac Tan, Burgundy, Champagne, Mahogany Wood, Seafoam) that transition cabinet gradients, borders, and shadows seamlessly.
+- **Physical Clock Settings Badge**: Depress the bakelite IST clock badge to open the settings drawer, upload custom background images, or select cabinet finishes.
+- **Tactile Metal Lever Switch**: A mechanical toggle switch with an active red neon status bulb to slide open the cassette loading bay.
+- **Cassette Loader Drawer**: Load custom audio tracks (`MP3, WAV, M4A, OGG`) directly into any playlist, inspect existing tracks in a scrollable list, and permanently delete uploaded songs.
+- **Single-Word, 8-Char Rename Limits**: Double-click any playlist tab button (on the main console or inside the drawer) to rename it. Inputs automatically block spaces and enforce strict 8-character limits to maintain formatting.
+- **Progressive Web App (PWA)**: Packaged with a custom gold cassette tape icon and Service Worker caching, making the radio installable as a standalone native app on **Windows** and **Android** devices.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prerequisites
+- Node.js (v18.x or later)
+- npm or yarn
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Installation & Run
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Krishbambharoliya/Music.git
+   cd Music
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📱 App Installation (Windows & Android PWA)
+- **On Windows**: Open the site in Chrome or Edge, click the **"Install App"** icon in the right side of the address bar.
+- **On Android**: Open the site in Chrome, tap the three-dot menu and select **"Add to Home screen"** or **"Install app"**.
