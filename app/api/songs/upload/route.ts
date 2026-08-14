@@ -10,6 +10,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const playlistId = (formData.get('playlist') as string) || 'night';
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
     }
 
     // Read and update the JSON database
-    let songs = [];
+    let songs: any[] = [];
     if (fs.existsSync(dbPath)) {
       try {
         const dbContent = fs.readFileSync(dbPath, 'utf8');
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       fileName: safeName,
       filePath: `/songs/${encodeURIComponent(safeName)}`,
       videoId: '',
+      playlist: playlistId,
     };
 
     if (existingIndex > -1) {
@@ -76,7 +78,7 @@ export async function POST(request: Request) {
 
     fs.writeFileSync(dbPath, JSON.stringify(songs, null, 2), 'utf8');
 
-    return NextResponse.json({ success: true, fileName: safeName });
+    return NextResponse.json({ success: true, fileName: safeName, playlist: playlistId });
   } catch (error: any) {
     console.error('Error saving uploaded file to database:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

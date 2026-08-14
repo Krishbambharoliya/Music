@@ -8,6 +8,7 @@ export interface Track {
   videoId: string;   // YouTube Video ID
   fileName?: string; // Optional local filename
   filePath?: string; // Optional local absolute or relative path
+  playlist?: string; // Playlist id this track belongs to
 }
 
 export interface Playlist {
@@ -18,8 +19,8 @@ export interface Playlist {
 
 export const PLAYLISTS: Playlist[] = [
   {
-    id: "raat-ki-paali",
-    name: "रात की पाली",
+    id: "night",
+    name: "NIGHT",
     tracks: [
       { id: "rk-1", title: "Kuch Na Kaho", artist: "Kumar Sanu", film: "1942: A Love Story", year: 1994, duration: 373, videoId: "Kidtrrn4aUM" },
       { id: "rk-2", title: "Jaadu Teri Nazar", artist: "Udit Narayan", film: "Darr", year: 1993, duration: 303, videoId: "FD3vgLOEdgk" },
@@ -30,8 +31,8 @@ export const PLAYLISTS: Playlist[] = [
     ]
   },
   {
-    id: "subah-ki-chai",
-    name: "सुबह की चाय",
+    id: "chai",
+    name: "CHAI",
     tracks: [
       { id: "sc-1", title: "Chaiyya Chaiyya", artist: "Sukhwinder Singh, Sapna Awasthi", film: "Dil Se..", year: 1998, duration: 412, videoId: "lZLxjLYyhYQ" },
       { id: "sc-2", title: "Ruk Ja O Dil Deewane", artist: "Udit Narayan", film: "DDLJ", year: 1995, duration: 237, videoId: "jBpRItrod-Q" },
@@ -40,8 +41,8 @@ export const PLAYLISTS: Playlist[] = [
     ]
   },
   {
-    id: "dopahar-ka-aaram",
-    name: "दोपहर का आराम",
+    id: "rest",
+    name: "REST",
     tracks: [
       { id: "da-1", title: "Ghar Se Nikalte Hi", artist: "Udit Narayan", film: "Papa Kehte Hain", year: 1996, duration: 424, videoId: "_IcVb6hFhPs" },
       { id: "da-2", title: "Chand Taare", artist: "Abhijeet", film: "Yes Boss", year: 1997, duration: 298, videoId: "DIAcdeG70IE" },
@@ -50,8 +51,8 @@ export const PLAYLISTS: Playlist[] = [
     ]
   },
   {
-    id: "shaam-ka-adda",
-    name: "शाम का अड्डा",
+    id: "adda",
+    name: "ADDA",
     tracks: [
       { id: "sa-1", title: "Ab Tere Bin Jee Lenge Hum", artist: "Kumar Sanu", film: "Aashiqui", year: 1990, duration: 340, videoId: "rTatsmUgmiA" },
       { id: "sa-2", title: "Sochenge Tumhe Pyar", artist: "Kumar Sanu", film: "Deewana", year: 1992, duration: 357, videoId: "PUGaSHPdTGg" },

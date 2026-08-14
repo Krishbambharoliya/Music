@@ -67,3 +67,40 @@ export async function GET() {
     return NextResponse.json({ songs: [], error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const dbPath = path.join(process.cwd(), 'data', 'database.json');
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ error: 'Song ID is required' }, { status: 400 });
+  }
+
+  try {
+    if (!fs.existsSync(dbPath)) {
+      return NextResponse.json({ error: 'No songs database found' }, { status: 404 });
+    }
+
+    const dbContent = fs.readFileSync(dbPath, 'utf8');
+    const songs = JSON.parse(dbContent);
+
+    // Find song to delete physically
+    const toDelete = songs.find((s: any) => s.id === id);
+    if (toDelete && toDelete.fileName) {
+      const filePath = path.join(process.cwd(), 'public', 'songs', toDelete.fileName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    const filtered = songs.filter((s: any) => s.id !== id);
+    fs.writeFileSync(dbPath, JSON.stringify(filtered, null, 2), 'utf8');
+
+    return NextResponse.json({ success: true, songs: filtered });
+  } catch (error: any) {
+    console.error('Error deleting song:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
