@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { PLAYLISTS, Playlist, Track } from './tracks';
+import { PLAYLISTS, Playlist, Track } from '../tracks';
 
 declare global {
   interface Window {
@@ -617,17 +617,7 @@ export default function PlayerClient() {
               
               console.warn("YouTube Player error:", event.data);
               playNext();
-              
-              try {
-                import('@vercel/analytics').then(({ track }) => {
-                  track('YouTubePlayerError', {
-                    code: event.data,
-                    videoId: currentTrackRef.current.videoId,
-                  });
-                });
-              } catch (err) {
-                console.error(err);
-              }
+              // Vercel analytics tracking omitted in client-side React SPA
             }
           }
         });
