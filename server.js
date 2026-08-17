@@ -92,6 +92,14 @@ app.get('/api/songs', (req, res) => {
   }
 });
 
+const defaultTracksCounts = {
+  night: 6,
+  chai: 4,
+  rest: 4,
+  adda: 5,
+  'local-library': 0
+};
+
 app.post('/api/songs/upload', upload.single('file'), (req, res) => {
   try {
     const file = req.file;
@@ -99,6 +107,24 @@ app.post('/api/songs/upload', upload.single('file'), (req, res) => {
 
     if (!file) {
       return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Read existing database to check total song counts
+    let songs = [];
+    if (fs.existsSync(songsDbPath)) {
+      try {
+        const dbContent = fs.readFileSync(songsDbPath, 'utf8');
+        songs = JSON.parse(dbContent);
+      } catch (e) {
+        console.warn('Failed to parse database.json:', e);
+      }
+    }
+
+    // Enforce 20-song limit per playlist (default + custom)
+    const customCount = songs.filter(s => s.playlist === playlistId).length;
+    const defaultCount = defaultTracksCounts[playlistId] || 0;
+    if (customCount + defaultCount >= 20) {
+      return res.status(400).json({ error: 'Maximum limit of 20 songs reached for this playlist.' });
     }
 
     const safeName = path.basename(file.originalname);
@@ -116,17 +142,6 @@ app.post('/api/songs/upload', upload.single('file'), (req, res) => {
       const parts = nameWithoutExt.split(' - ');
       artist = parts[0].trim();
       title = parts.slice(1).join(' - ').trim();
-    }
-
-    // Read and update the database
-    let songs = [];
-    if (fs.existsSync(songsDbPath)) {
-      try {
-        const dbContent = fs.readFileSync(songsDbPath, 'utf8');
-        songs = JSON.parse(dbContent);
-      } catch (e) {
-        console.warn('Failed to parse database.json:', e);
-      }
     }
 
     const existingIndex = songs.findIndex(s => s.fileName === safeName);

@@ -425,6 +425,14 @@ export default function PlayerClient() {
   }, []);
 
   const handleUpload = async (fileToUpload: File) => {
+    // Client-side 20-song limit check
+    const targetPlaylist = playlists.find(p => p.id === uploadPlaylist);
+    const totalTracks = targetPlaylist ? targetPlaylist.tracks.length : 0;
+    if (totalTracks >= 20) {
+      setUploadError('Maximum limit of 20 songs reached for this playlist.');
+      return;
+    }
+
     setUploading(true);
     setUploadError('');
     setUploadSuccess(false);
@@ -647,8 +655,20 @@ export default function PlayerClient() {
   }, []);
 
   useEffect(() => {
-    if (currentTrack.id === 'no-track') return;
     if (!audioRef.current) return;
+    
+    if (currentTrack.id === 'no-track') {
+      audioRef.current.pause();
+      if (isPlayerReady && playerRef.current) {
+        try {
+          playerRef.current.pauseVideo();
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+      return;
+    }
+    
     const isLocal = !!currentTrack.fileName;
 
     if (isLocal) {
@@ -697,7 +717,11 @@ export default function PlayerClient() {
   }, [currentTrack, isPlaying, isPlayerReady]);
 
   useEffect(() => {
-    if (currentTrack.id === 'no-track') return;
+    if (currentTrack.id === 'no-track') {
+      setElapsed(0);
+      setDuration(0);
+      return;
+    }
     let timer: NodeJS.Timeout;
     const isLocal = !!currentTrack.fileName;
 
@@ -1222,13 +1246,29 @@ export default function PlayerClient() {
             {/* === MOBILE TOP ROW: Track Info + Seek Bar === */}
             <div className="flex items-center gap-2 w-full">
               {/* 2. Track Title & Artist (Compact list) */}
-              <div className="flex flex-col justify-center min-w-0 max-w-[90px] sm:max-w-[140px] text-left select-none shrink-0 leading-none">
-                <span className="text-[9px] sm:text-[11px] font-semibold text-cream truncate font-retro drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                  {currentTrack.title}
-                </span>
-                <span className="text-[7px] sm:text-[8px] text-brass font-bold uppercase truncate font-retro mt-[2px] sm:mt-[3px] drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.9)]">
-                  {currentTrack.artist}
-                </span>
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <div className="flex flex-col justify-center min-w-0 max-w-[90px] sm:max-w-[140px] text-left select-none leading-none">
+                  <span className="text-[9px] sm:text-[11px] font-semibold text-cream truncate font-retro drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                    {currentTrack.title}
+                  </span>
+                  <span className="text-[7px] sm:text-[8px] text-brass font-bold uppercase truncate font-retro mt-[2px] sm:mt-[3px] drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.9)]">
+                    {currentTrack.artist}
+                  </span>
+                </div>
+                {!!currentTrack.fileName && currentTrack.id !== 'no-track' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm(`Are you sure you want to delete "${currentTrack.title}"?`)) {
+                        handleDeleteSong(currentTrack.id);
+                      }
+                    }}
+                    className="text-stone-400 hover:text-[#c8102e] cursor-pointer transition-colors p-1 bg-black/35 hover:bg-black/60 rounded border border-stone-800/40 text-[9px] sm:text-[10px] leading-none shrink-0"
+                    title="Delete Playing Song"
+                  >
+                    🗑
+                  </button>
+                )}
               </div>
 
               {/* 3. Glass Dial Seek Bar (Center) */}
