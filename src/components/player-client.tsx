@@ -851,14 +851,19 @@ export default function PlayerClient() {
           {/* Subtle line details on label */}
           <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1px] bg-stone-900/5 pointer-events-none" />
 
-          {/* Dynamic Track info in retro handwritten font */}
+          {/* Top write-in space: Track Title */}
           <div className="flex flex-col text-left font-retro tracking-tight select-none z-10 leading-tight">
-            <span className="text-[6.5px] sm:text-[7.5px] text-stone-500/60 uppercase font-bold">CURRENT SELECTION</span>
-            <span className="text-[9px] sm:text-[12px] font-bold text-stone-800 font-retro leading-none mt-0.5 truncate uppercase">
+            <span className="text-[5.5px] sm:text-[6.5px] text-stone-500/60 uppercase font-bold">TRACK TITLE</span>
+            <span className="text-[9px] sm:text-[11.5px] font-bold text-stone-800 font-retro leading-none mt-0.5 truncate uppercase">
               {currentTrack.id === 'no-track' ? 'S.P Hostel Radio' : currentTrack.title}
             </span>
-            <span className="text-[7.5px] sm:text-[9.5px] font-bold text-brass/90 tracking-wide font-retro leading-none mt-0.5 truncate uppercase">
-              {currentTrack.id === 'no-track' ? 'Insert Tape (Add Song)' : currentTrack.artist}
+          </div>
+
+          {/* Bottom write-in space: Artist & Film/Album */}
+          <div className="flex flex-col text-left font-retro tracking-tight select-none z-10 leading-tight">
+            <span className="text-[5.5px] sm:text-[6.5px] text-stone-500/60 uppercase font-bold">ARTIST / FILM</span>
+            <span className="text-[7.5px] sm:text-[9.5px] font-bold text-brass/95 tracking-wide font-retro leading-none mt-0.5 truncate uppercase">
+              {currentTrack.id === 'no-track' ? 'Insert Tape (Add Song)' : `${currentTrack.artist} ${currentTrack.film ? `(${currentTrack.film})` : ''}`}
             </span>
           </div>
 
