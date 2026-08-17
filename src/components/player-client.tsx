@@ -184,6 +184,15 @@ export default function PlayerClient() {
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
   const [volume, setVolume] = useState(0.8);
+  const [deletedTrackIds, setDeletedTrackIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('sp-radio-deleted-tracks');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [isIndexOpen, setIsIndexOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -356,8 +365,13 @@ export default function PlayerClient() {
   };
 
   const playlist = playlists.find(p => p.id === activePlaylistId) || playlists[0];
-  const currentTrack = (playlist.tracks && playlist.tracks.length > 0)
-    ? (playlist.tracks[trackIndex] || playlist.tracks[0])
+  const filteredTracks = (playlist.tracks || []).filter(t => !deletedTrackIds.includes(t.id));
+  const filteredPlaylist = {
+    ...playlist,
+    tracks: filteredTracks
+  };
+  const currentTrack = (filteredTracks.length > 0)
+    ? (filteredTracks[trackIndex] || filteredTracks[0])
     : {
         id: 'no-track',
         title: 'No Songs Uploaded',
@@ -368,8 +382,8 @@ export default function PlayerClient() {
         videoId: '',
       };
 
-  const playlistRef = useRef(playlist);
-  playlistRef.current = playlist;
+  const playlistRef = useRef(filteredPlaylist);
+  playlistRef.current = filteredPlaylist;
   const trackIndexRef = useRef(trackIndex);
   trackIndexRef.current = trackIndex;
   const isPlayingRef = useRef(isPlaying);
@@ -472,7 +486,31 @@ export default function PlayerClient() {
   };
 
   const handleDeleteSong = async (songId: string) => {
-    if (!confirm("Are you sure you want to permanently delete this song?")) return;
+    // If it's a default song, hide it locally!
+    if (!songId.startsWith('db-')) {
+      if (!window.confirm("Are you sure you want to remove this song from the playlist?")) return;
+      const nextDeleted = [...deletedTrackIds, songId];
+      setDeletedTrackIds(nextDeleted);
+      try {
+        localStorage.setItem('sp-radio-deleted-tracks', JSON.stringify(nextDeleted));
+      } catch (e) {}
+      
+      // If it's the currently playing song, pause and reset
+      if (currentTrack && currentTrack.id === songId) {
+        setIsPlaying(false);
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        if (playerRef.current) {
+          playerRef.current.pauseVideo();
+        }
+        setTrackIndex(0);
+        setElapsed(0);
+      }
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to permanently delete this uploaded song?")) return;
     try {
       const res = await fetch(`/api/songs?id=${songId}`, {
         method: 'DELETE',
@@ -1030,7 +1068,10 @@ export default function PlayerClient() {
 
           {/* The Upload/Add Toggle Switch (Old Style Metal Lever & Indicator Lamp) */}
           <button
-            onClick={() => setIsUploadOpen(!isUploadOpen)}
+            onClick={() => {
+              setIsUploadOpen(!isUploadOpen);
+              if (isIndexOpen) setIsIndexOpen(false);
+            }}
             className="h-5 sm:h-6 px-2 flex items-center gap-1.5 bg-gradient-to-b from-[#2e261f] to-[#1c1611] rounded-t-[4px] border-t border-x border-[#50370d] shadow-[0_1.5px_3px_rgba(0,0,0,0.45)] hover:from-[#3a3027] hover:to-[#221b14] active:translate-y-[0.5px] cursor-pointer select-none transition-all duration-300 ease-in-out"
             title="Toggle Cassette Loader"
           >
@@ -1058,6 +1099,40 @@ export default function PlayerClient() {
             {/* Switch Label */}
             <span className="text-[6.5px] sm:text-[7.5px] text-[#ebb548] font-bold uppercase tracking-tight font-retro leading-none">
               {isUploadOpen ? "CLOSE" : "ADD"}
+            </span>
+          </button>
+
+          {/* The Playlist Index Toggle (Lined Paper Index Card) */}
+          <button
+            onClick={() => {
+              setIsIndexOpen(!isIndexOpen);
+              if (isUploadOpen) setIsUploadOpen(false);
+            }}
+            className="h-5 sm:h-6 px-2 flex items-center gap-1.5 bg-gradient-to-b from-[#2e261f] to-[#1c1611] rounded-t-[4px] border-t border-x border-[#50370d] shadow-[0_1.5px_3px_rgba(0,0,0,0.45)] hover:from-[#3a3027] hover:to-[#221b14] active:translate-y-[0.5px] cursor-pointer select-none transition-all duration-300 ease-in-out"
+            title="Toggle Playlist Tracklist"
+          >
+            {/* Tiny Indicator Light (Emerald Green for tracks index) */}
+            <span 
+              className={`w-1.5 h-1.5 rounded-full border border-black/50 transition-all duration-300 shrink-0 ${
+                isIndexOpen 
+                  ? 'bg-emerald-500 shadow-[0_0_5px_#10b981,inset_0_0.5px_0.5px_white]' 
+                  : 'bg-emerald-950/80 shadow-[inset_0_0.5px_0.5px_rgba(0,0,0,0.6)]'
+              }`} 
+            />
+
+            {/* Toggle Switch Track & Lever */}
+            <div className="w-2.5 h-3.5 bg-[#090b0e] rounded-[2px] border border-stone-800/80 relative flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1px] bg-black/60" />
+              <div 
+                className={`absolute w-1.5 h-1.5 rounded-[1px] border border-stone-500/80 shadow-[0_0.5px_1.5px_rgba(0,0,0,0.6)] transition-all duration-300 ${
+                  isIndexOpen ? '-translate-y-0.75 bg-gradient-to-b from-stone-100 to-stone-400' : 'translate-y-0.75 bg-gradient-to-b from-stone-200 to-stone-500'
+                }`}
+              />
+            </div>
+
+            {/* Switch Label */}
+            <span className="text-[6.5px] sm:text-[7.5px] text-[#ebb548] font-bold uppercase tracking-tight font-retro leading-none">
+              {isIndexOpen ? "CLOSE" : "LIST"}
             </span>
           </button>
         </div>
@@ -1226,6 +1301,93 @@ export default function PlayerClient() {
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Animated Tape J-Card Index drawer */}
+        <div
+          className={`w-full overflow-hidden transition-all duration-500 ease-in-out pointer-events-auto ${
+            isIndexOpen ? "max-h-[280px] opacity-100 mb-1.5" : "max-h-0 opacity-0 mb-0"
+          }`}
+        >
+          <div
+            className="w-full p-3.5 rounded-xl border-[3px] border-[#50370d] shadow-2xl relative overflow-hidden bg-[#fbf9f3]"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(#fbf9f3 0px, #fbf9f3 21px, rgba(80,55,13,0.06) 22px)',
+            }}
+          >
+            {/* Red notebook margin line */}
+            <div className="absolute top-0 bottom-0 left-[24px] w-[1px] bg-red-400/40 pointer-events-none" />
+
+            <div className="flex flex-col gap-2 relative z-10 pl-6 font-retro">
+              <div className="flex justify-between items-center text-[8.5px] sm:text-[10px] text-[#50370d] font-bold uppercase tracking-wider select-none border-b border-[#50370d]/20 pb-1">
+                <span>PLAYLIST: {getPlaylistName(playlist)} INDEX</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-stone-500/70 font-normal">({filteredTracks.length} TRACKS)</span>
+                  {deletedTrackIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Restore all hidden default songs?")) {
+                          setDeletedTrackIds([]);
+                          localStorage.removeItem('sp-radio-deleted-tracks');
+                        }
+                      }}
+                      className="text-[6.5px] sm:text-[7.5px] text-[#c8102e] hover:underline cursor-pointer font-bold shrink-0"
+                    >
+                      RESTORE
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {filteredTracks.length === 0 ? (
+                <div className="text-center py-4 text-stone-500 italic text-[7.5px] sm:text-[8.5px] select-none">
+                  No songs in this playlist yet. Add some!
+                </div>
+              ) : (
+                <div className="max-h-44 overflow-y-auto pr-1 flex flex-col gap-1 select-none scrollbar-thin">
+                  {filteredTracks.map((track, i) => {
+                    const isActive = currentTrack.id === track.id;
+                    return (
+                      <div 
+                        key={track.id} 
+                        onClick={() => {
+                          setTrackIndex(i);
+                          setElapsed(0);
+                          setIsPlaying(true);
+                        }}
+                        className={`flex justify-between items-center bg-stone-900/[0.03] hover:bg-stone-900/[0.08] rounded px-2.5 py-1 text-[7.5px] sm:text-[8.5px] border border-stone-950/[0.04] transition-all cursor-pointer ${
+                          isActive 
+                            ? 'bg-[#ebb548]/15 border-[#ebb548]/35 font-bold text-stone-900' 
+                            : 'text-stone-700'
+                        }`}
+                      >
+                        <div className="truncate flex-1 pr-2 text-left flex items-center gap-1.5">
+                          <span className="text-stone-400 font-semibold">{(i + 1).toString().padStart(2, '0')}</span>
+                          <span className="truncate">{track.title}</span>
+                          <span className="text-stone-500/70 font-semibold uppercase text-[6.5px] sm:text-[7px]">
+                            — {track.artist}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteSong(track.id);
+                          }}
+                          className="text-stone-400 hover:text-[#c8102e] cursor-pointer transition-colors p-0.5 text-[8.5px] sm:text-[10px]"
+                          title="Remove Song"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
