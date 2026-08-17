@@ -356,7 +356,17 @@ export default function PlayerClient() {
   };
 
   const playlist = playlists.find(p => p.id === activePlaylistId) || playlists[0];
-  const currentTrack = playlist.tracks[trackIndex] || playlist.tracks[0];
+  const currentTrack = (playlist.tracks && playlist.tracks.length > 0)
+    ? (playlist.tracks[trackIndex] || playlist.tracks[0])
+    : {
+        id: 'no-track',
+        title: 'No Songs Uploaded',
+        artist: 'Click "+" to add custom songs',
+        film: 'S.P Hostel Radio',
+        year: new Date().getFullYear(),
+        duration: 0,
+        videoId: '',
+      };
 
   const playlistRef = useRef(playlist);
   playlistRef.current = playlist;
@@ -499,6 +509,7 @@ export default function PlayerClient() {
   };
 
   const togglePlay = () => {
+    if (currentTrack.id === 'no-track') return;
     const nextPlaying = !isPlaying;
     setIsPlaying(nextPlaying);
     
@@ -636,6 +647,7 @@ export default function PlayerClient() {
   }, []);
 
   useEffect(() => {
+    if (currentTrack.id === 'no-track') return;
     if (!audioRef.current) return;
     const isLocal = !!currentTrack.fileName;
 
@@ -685,6 +697,7 @@ export default function PlayerClient() {
   }, [currentTrack, isPlaying, isPlayerReady]);
 
   useEffect(() => {
+    if (currentTrack.id === 'no-track') return;
     let timer: NodeJS.Timeout;
     const isLocal = !!currentTrack.fileName;
 
@@ -722,6 +735,7 @@ export default function PlayerClient() {
   const seekContainerRef = useRef<HTMLDivElement>(null);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (currentTrack.id === 'no-track') return;
     if (!seekContainerRef.current) return;
     setIsSeeking(true);
     seekContainerRef.current.setPointerCapture(e.pointerId);
