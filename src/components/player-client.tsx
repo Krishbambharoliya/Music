@@ -203,13 +203,15 @@ export default function PlayerClient() {
 
   // Background images state
   const [backgrounds, setBackgrounds] = useState<Background[]>([
-    { id: 'default', name: 'Engineering Building', url: '/bg/engineering.jpg', tallUrl: '/bg/engineering.jpg', isDefault: true }
+    { id: 'default', name: 'Engineering Building', url: '/bg/engineering.jpg', tallUrl: '/bg/engineering.jpg', isDefault: true },
+    { id: 'hostel', name: 'S.P Hostel (1995)', url: '/bg/hostel.jpg', tallUrl: '/bg/hostel.jpg', isDefault: true }
   ]);
   const [activeBgId, setActiveBgId] = useState('default');
   const [isBgPickerOpen, setIsBgPickerOpen] = useState(false);
   const [uploadingBg, setUploadingBg] = useState(false);
   const [bgUploadError, setBgUploadError] = useState('');
   const bgFileInputRef = useRef<HTMLInputElement>(null);
+  const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const [radioColorId, setRadioColorId] = useState('ochre');
 
   const [isMobile, setIsMobile] = useState(false);
@@ -303,6 +305,85 @@ export default function PlayerClient() {
       })
       .catch(err => console.warn('Error fetching backgrounds:', err));
   };
+
+  useEffect(() => {
+    if (activeBgId !== 'hostel') return;
+    
+    const canvas = particleCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Create particles
+    const particleCount = 45;
+    const particles: Array<{
+      x: number;
+      y: number;
+      radius: number;
+      speedX: number;
+      speedY: number;
+      opacity: number;
+      fadeSpeed: number;
+    }> = [];
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 2 + 0.5,
+        speedX: (Math.random() - 0.5) * 0.15 + 0.05, // Gentle drift right
+        speedY: (Math.random() - 0.5) * 0.12 - 0.1,  // Gentle drift up
+        opacity: Math.random() * 0.5 + 0.1,
+        fadeSpeed: (Math.random() * 0.005) + 0.002,
+      });
+    }
+
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach((p) => {
+        // Move particle
+        p.x += p.x < 0 ? width : p.x > width ? -width : p.speedX;
+        p.y += p.y < 0 ? height : p.y > height ? -height : p.speedY;
+
+        // Pulse opacity slightly
+        p.opacity += p.fadeSpeed;
+        if (p.opacity > 0.65 || p.opacity < 0.1) {
+          p.fadeSpeed = -p.fadeSpeed;
+        }
+
+        // Draw particle
+        ctx.beginPath();
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 2);
+        grad.addColorStop(0, `rgba(240, 190, 110, ${p.opacity})`);
+        grad.addColorStop(0.4, `rgba(224, 161, 58, ${p.opacity * 0.5})`);
+        grad.addColorStop(1, 'rgba(224, 161, 58, 0)');
+        ctx.fillStyle = grad;
+        ctx.arc(p.x, p.y, p.radius * 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [activeBgId]);
 
   const handleBgUpload = async (file: File) => {
     setUploadingBg(true);
@@ -862,6 +943,14 @@ export default function PlayerClient() {
         aria-hidden="true" 
       />
       <div className="fixed inset-0 -z-10 grain-overlay pointer-events-none" aria-hidden="true" />
+
+      {/* Floating Golden Dust Particles for Live Hostel Wallpaper */}
+      {activeBgId === 'hostel' && (
+        <canvas 
+          ref={particleCanvasRef} 
+          className="fixed inset-0 z-0 pointer-events-none opacity-50 mix-blend-screen"
+        />
+      )}
 
       {/* FIXED TOP ROW */}
       <header className="fixed top-0 left-0 right-0 z-45 flex items-center justify-between px-3 sm:px-6 py-2 sm:py-4 pointer-events-none">

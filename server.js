@@ -215,6 +215,13 @@ const defaultBgs = [
     url: '/bg/engineering.jpg',
     tallUrl: '/bg/engineering.jpg',
     isDefault: true,
+  },
+  {
+    id: 'hostel',
+    name: 'S.P Hostel (1995)',
+    url: '/bg/hostel.jpg',
+    tallUrl: '/bg/hostel.jpg',
+    isDefault: true,
   }
 ];
 
